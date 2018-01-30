@@ -1,17 +1,26 @@
 <html>
 
 <head>
+    <style>
+      
+        *{box-sizing: border-box;}
+        #a-output{
+            float: left; border: 1px solid #000000; width: 50%; height: 100%; padding: 5px;
+        }
+        #a-input{
+            width: 40%; height: 100%; float: left; background-color: lightyellow;
+        }
+        #a-toc{
+            background-color: lightblue; width: 10%; height:100%; position:fixed; right: 0; top:0;
+            padding: 5px;
+        }
+    </style>
 </head>
 
 <body>
-    <textarea id="a-input" 
-    style="width: 40%; height: 100%; float: left; background-color: lightyellow;"
-    rows="20" onchange="generateHtml()" 
-     onkeyup="generateHtml()"></textarea>
-    <div style="float: left; border: 1px solid #000000; width: 50%; height: 100%;">     
-        <article id="a-output" style="float: left;"></article>
-    </div>
-    <nav id="a-toc" style="background-color: lightblue; width: 10%; position:fixed; right: 0; top:0;"></nav>
+    <textarea id="a-input" onchange="generateHtml()" onkeyup="generateHtml()"></textarea>    
+    <article id="a-output"></article>
+    <nav id="a-toc"></nav>
 
     <script>
         var inputEl = document.getElementById("a-input");
