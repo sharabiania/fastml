@@ -1,0 +1,116 @@
+<html>
+
+<head>
+</head>
+
+<body>
+    <textarea id="a-input" 
+    style="width: 40%; height: 100%; float: left; background-color: lightyellow;"
+    rows="20" onchange="generateHtml()" 
+     onkeyup="generateHtml()"></textarea>
+    <div style="float: left; border: 1px solid #000000; width: 50%; height: 100%;">     
+        <article id="a-output" style="float: left;"></article>
+    </div>
+    <nav id="a-toc" style="background-color: lightblue; width: 10%; position:fixed; right: 0; top:0;"></nav>
+
+    <script>
+        var inputEl = document.getElementById("a-input");
+        var outputEl = document.getElementById("a-output");
+        var tocEl = document.getElementById("a-toc");
+
+        function processLine(line) {
+            var co = false;
+            var bo = false;
+            var io = false;
+            var out = "";
+            for (var i = 0; i < line.length; ++i) {
+                var c = line.charAt(i);
+                switch (c) {
+                    case '_':
+                        if (io == false) out += '<i>';
+                        else out += "</i>"
+                        io = !io;
+                        break;
+                    case '*':
+                        if (bo == false) out += '<b>';
+                        else out += "</b>";
+                        bo = !bo;
+                        break;
+                    case '`':
+                        if (co == false) out += '<code>';
+                        else out += '</code>';
+                        co = !co;
+                        break;
+
+                    default:
+                        out += c;
+                        break;
+                }
+            }
+            return out;
+        }
+
+        function generateHtml() {
+            outputEl.innerHTML = "";
+            var outToc = "";
+            var outHtml = "";
+            var lines = inputEl.value.split('\n');
+            var prev = -1;
+            var curr = -1;
+            for (var i = 0; i < lines.length; ++i) {
+                var l = lines[i].trim();
+                if (l == "") continue;
+
+                l = processLine(l);
+
+                var c0 = l.charAt(0);
+                var c1 = l.charAt(1);
+                var out = "";
+                curr = -1;
+                if (c0 == '#') {
+
+                    switch (c1) {
+                        case '1':
+                            tag = "h1";
+                            break;
+                        case '2': tag = "h2"; break;
+                        case '3': tag = "h3"; break;
+                        case '4': tag = "h4"; break;
+                    }
+
+                    out += l.replace(c0 + c1, "<" + tag + ">");
+                    out += "</" + tag + ">";
+                    outToc += "<a href=''>" + out + "</a>";
+                }
+                else if (c0 == '-') {
+                    switch (c1) {
+                        case '-':
+                            out = l.replace(c0 + c1, "<hr/>");
+                            break;
+                        case ' ':
+                            curr = 1; // opened
+                            if (prev == -1) {
+                                out += "<ul>";
+                            }
+                            out += l.replace(c0 + c1, "<li>");
+                            out += "</li>"
+                            break;
+                    }
+                }
+                else {
+                    out += l;
+                }
+                if (curr === -1 && prev === 1) {
+                    out = "</ul>" + out;
+                }
+
+                outHtml += "<p>" + out + "</p>";
+                outputEl.innerHTML = outHtml;
+                tocEl.innerHTML = outToc;
+                prev = curr;
+            }
+        }
+    </script>
+</body>
+
+</html>
