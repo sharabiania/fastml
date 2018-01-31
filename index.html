@@ -1,19 +1,40 @@
 <html>
 
 <head>
+
+    <meta name="viewport" content="width=device-width" />
+
     <style>
-      
         *{box-sizing: border-box;}
+        h1, h2, h3, h4 {
+            color:dodgerblue;
+            text-transform: capitalize;
+        }
+        h1{font-size:2em;}
+        h2{font-size: 1.5em;}
+        h3{font-size: 1.25em;}
+        h4{font-size: 1em;}
+        body {font-family: "Open Sans","Calibri","sans-serif";}
+        pre {background-color: lightgray; border-radius: 5px; padding: 10px;}
+        p {text-transform: capitalize;}
+
         #a-output{
             float: left; border: 1px solid #000000; width: 50%; height: 100%; padding: 5px;
+            overflow-y: scroll;resize: horizontal;
         }
         #a-input{
-            width: 40%; height: 100%; float: left; background-color: lightyellow;
+            width: 40%; height: 100%; float: left; background-color: lightyellow;resize: horizontal;
         }
         #a-toc{
             background-color: lightblue; width: 10%; height:100%; position:fixed; right: 0; top:0;
-            padding: 5px;
+            padding: 5px;resize:horizontal;
         }
+    
+        @media only screen and (max-width: 500px) {
+            #a-input{float:none;width:100%; height:30%;}
+            #a-toc{float:none;position: relative; width:100%; height: 10%;overflow: scroll;font-size: smaller;}
+            #a-output{float:none;width:100%;height: 60%;}
+        }  
     </style>
 </head>
 
@@ -27,6 +48,11 @@
         var outputEl = document.getElementById("a-output");
         var tocEl = document.getElementById("a-toc");
 
+        var headingChar = "\\";
+        var italicChar = "/";
+        var boldChar = "=";
+        var codeChar = "`";
+
         function processLine(line) {
             var co = false;
             var bo = false;
@@ -35,21 +61,21 @@
             for (var i = 0; i < line.length; ++i) {
                 var c = line.charAt(i);
                 switch (c) {
-                    case '_':
+                    case italicChar:
                         if (io == false) out += '<i>';
                         else out += "</i>"
                         io = !io;
                         break;
-                    case '*':
+                    case boldChar:
                         if (bo == false) out += '<b>';
                         else out += "</b>";
                         bo = !bo;
                         break;
-                    case '`':
+                    case codeChar:
                         if (co == false) out += '<code>';
                         else out += '</code>';
                         co = !co;
-                        break;
+                    break;
 
                     default:
                         out += c;
@@ -59,64 +85,101 @@
             return out;
         }
 
+        
         function generateHtml() {
             outputEl.innerHTML = "";
+            var flags = function(){ 
+                this.ul = false;
+                this.pre = false;
+            };
+            var fp = new flags();
+            var fc = new flags();
             var outToc = "";
             var outHtml = "";
+            var autoid = 0;
             var lines = inputEl.value.split('\n');
-            var prev = -1;
-            var curr = -1;
+            var pre = false;
+
             for (var i = 0; i < lines.length; ++i) {
-                var l = lines[i].trim();
-                if (l == "") continue;
-
-                l = processLine(l);
-
+                var l = lines[i];
                 var c0 = l.charAt(0);
                 var c1 = l.charAt(1);
                 var out = "";
-                curr = -1;
-                if (c0 == '#') {
-
-                    switch (c1) {
-                        case '1':
-                            tag = "h1";
-                            break;
-                        case '2': tag = "h2"; break;
-                        case '3': tag = "h3"; break;
-                        case '4': tag = "h4"; break;
+                fc.ul = false;
+                
+                var markup = 0;
+                if(c0 == codeChar && c1 == codeChar) {
+                    
+                    if(pre == false) {
+                        out += "<pre><code>" + l.substring(2);
                     }
-
-                    out += l.replace(c0 + c1, "<" + tag + ">");
-                    out += "</" + tag + ">";
-                    outToc += "<a href=''>" + out + "</a>";
+                    else {
+                        out += "</code></pre>";
+                    }
+                    pre = !pre;
                 }
-                else if (c0 == '-') {
-                    switch (c1) {
-                        case '-':
-                            out = l.replace(c0 + c1, "<hr/>");
-                            break;
-                        case ' ':
-                            curr = 1; // opened
-                            if (prev == -1) {
-                                out += "<ul>";
-                            }
-                            out += l.replace(c0 + c1, "<li>");
-                            out += "</li>"
-                            break;
+                else if(pre == false)
+                { 
+                    l = l.trim();
+                    if (l == "") continue;
+                    l = processLine(l);
+                    if (c0 == headingChar) 
+                    {
+                            markup++;
+                            switch (c1) {
+
+                                default: tag = "h1";break;
+                                case headingChar: 
+                                    markup++;
+                                    tag = "h2";
+                                    if(l.charAt(2) == headingChar) {
+                                        markup++;
+                                        if(l.charAt(3) == headingChar) {
+                                            markup++;
+                                            tag = "h4";
+                                        } else {
+                                        tag = "h3";}
+                                    }
+                                
+                                break;
+                        }
+
+                        out +=  "<" + tag + " id='autoid-" + autoid + "'>" + l.substring(markup) + "</" + tag + ">";
+                        var tabs = "";
+                        for(var k = 0; k < markup; ++k)
+                            tabs += "&nbsp;";
+                        outToc += tabs + "<a href='#autoid-" + autoid++ + "'>" + out + "</a>";
+                        
+                    }
+                    else if (c0 == '-') {
+                        switch (c1) {
+                            case '-':
+                                out = "<hr/>" + l.substring(2);
+                                break;
+                            default:
+                                fc.ul = true; // opened
+                                if (fp.ul == false) {
+                                    out += "<ul>";
+                                }
+                                out += "<li>" + l.substring(1) + "</li>";
+                                break;
+                        }
+                    }
+                
+                    else {
+                      
+                            out += "<p>" + l + "</p>";
+                    }
+                
+                    if (fc.ul === false && fp.ul === true) {
+                        out = "</ul>" + out;
                     }
                 }
-                else {
-                    out += l;
-                }
-                if (curr === -1 && prev === 1) {
-                    out = "</ul>" + out;
-                }
-
-                outHtml += "<p>" + out + "</p>";
+                else { out += l + "\n";}
+                outHtml +=  out;
                 outputEl.innerHTML = outHtml;
                 tocEl.innerHTML = outToc;
-                prev = curr;
+                fp.ul = fc.ul;
             }
         }
     </script>
