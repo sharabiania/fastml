@@ -6,17 +6,15 @@
 
     <style>
         *{box-sizing: border-box;}
-        h1, h2, h3, h4 {
-            color:dodgerblue;
-            text-transform: capitalize;
-        }
+        h1, h2, h3, h4 {color:dodgerblue;text-transform: capitalize;}
         h1{font-size:2em;}
         h2{font-size: 1.5em;}
         h3{font-size: 1.25em;}
         h4{font-size: 1em;}
         body {font-family: "Open Sans","Calibri","sans-serif";}
         pre {background-color: lightgray; border-radius: 5px; padding: 10px;}
-        p {text-transform: capitalize;}
+        p::first-letter {text-transform: uppercase;}
+        p {text-indent: 15px;}
 
         #a-output{
             float: left; border: 1px solid #000000; width: 50%; height: 100%; padding: 5px;
@@ -52,6 +50,15 @@
         var italicChar = "/";
         var boldChar = "=";
         var codeChar = "`";
+
+        window.onbeforeunload = function(){
+                window.localStorage.setItem("fml-lastcode", inputEl.value);
+        }
+        window.onload = function(){
+            var code = window.localStorage.getItem("fml-lastcode")
+            if(code != null || code != "")
+                inputEl.value = code;
+        }
 
         function processLine(line) {
             var co = false;
