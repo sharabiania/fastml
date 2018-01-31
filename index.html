@@ -23,16 +23,16 @@
             overflow-y: scroll;resize: horizontal;
         }
         #a-input{
-            width: 40%; height: 100%; float: left; background-color: lightyellow;resize: horizontal;
+            width: 35%; height: 100%; float: left; background-color: lightyellow;resize: horizontal;
         }
         #a-toc{
-            background-color: lightblue; width: 10%; height:100%; position:fixed; right: 0; top:0;
-            padding: 5px;resize:horizontal;
+            background-color: lightblue; width: 15%; height:100%; position:fixed; right: 0; top:0;
+            padding: 5px;resize:horizontal;font-size: x-small;
         }
     
         @media only screen and (max-width: 500px) {
             #a-input{float:none;width:100%; height:30%;}
-            #a-toc{float:none;position: relative; width:100%; height: 10%;overflow: scroll;font-size: smaller;}
+            #a-toc{float:none;position: relative; width:100%; height: 10%;overflow: scroll;}
             #a-output{float:none;width:100%;height: 60%;}
         }  
     </style>
@@ -144,11 +144,8 @@
                                 break;
                         }
 
-                        out +=  "<" + tag + " id='autoid-" + autoid + "'>" + l.substring(markup) + "</" + tag + ">";
-                        var tabs = "";
-                        for(var k = 0; k < markup; ++k)
-                            tabs += "&nbsp;";
-                        outToc += tabs + "<a href='#autoid-" + autoid++ + "'>" + out + "</a>";
+                        out +=  "<" + tag + " id='autoid-" + autoid + "'>" + l.substring(markup) + "</" + tag + ">";                     
+                        outToc += "<a href='#autoid-" + autoid++ + "'>" + out + "</a>";
                         
                     }
                     else if (c0 == '-') {
