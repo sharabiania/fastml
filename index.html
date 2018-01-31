@@ -39,7 +39,7 @@
 
 <body>
     <div id="f-toolbar">
-        <button onclick="toggleView(this)" data-toggle="off">View Source</button>
+        <button id="f-btn-toggle" onclick="toggleView(this)" data-toggle="off">View Source</button>
         <button onclick="copyHtml()">Copy</button>
     </div>
     <textarea id="a-input" onchange="generateHtml()" onkeyup="generateHtml()"></textarea>    
@@ -55,6 +55,16 @@
         var italicChar = "/";
         var boldChar = "=";
         var codeChar = "`";            
+
+        function writeOutput(html, tochtml){
+            if(document.getElementById("f-btn-toggle").getAttribute("data-toggle") == "off") {
+                outputEl.innerHTML = html;                
+            }
+            else {
+                outputEl.innerText = html;
+            }
+            tocEl.innerHTML = tochtml;
+        }
 
         function processLine(line) {
             var co = false;
@@ -177,14 +187,13 @@
                 }
                 else { out += l + "\n";}
                 outHtml +=  out;
-                outputEl.innerHTML = outHtml;
-                tocEl.innerHTML = outToc;
+                writeOutput(outHtml, outToc);                
                 fp.ul = fc.ul;
             }
         }
 
         window.onbeforeunload = function(){
-                window.localStorage.setItem("fml-lastcode", inputEl.value);
+            window.localStorage.setItem("fml-lastcode", inputEl.value);
         }
         window.onload = function(){
             var code = window.localStorage.getItem("fml-lastcode")
