@@ -1,11 +1,12 @@
-# fastml
-Easy markup language. 
+# Fast Markup Language
+A markup language for taking notes, writing blogs and more. 
+Designed to use minimal keys.
 
-# Key future
+## Key future
 
 Does not require the use of Shift + key for fast typing.
 
-# Syntax
+## Syntax
 \heading1
 
 \\heading2
@@ -20,6 +21,8 @@ Does not require the use of Shift + key for fast typing.
 
 This is a paragraph.
 This is another paragraph with /italic/ and =bold= text and \`inline code\`.
+
+- `--`: horizontal line. 
 
 \`\`
 
