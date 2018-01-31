@@ -1,5 +1,10 @@
-# easyml
-easy markup language. do not need to use Shift + key
+# fastml
+Easy markup language. 
+
+# Key future
+
+Does not require the use of Shift + key for fast typing.
+
 # Syntax
 \heading1
 
