@@ -6,52 +6,81 @@
 
     <style>
         *{box-sizing: border-box;}
-        h1, h2, h3, h4 {
-            color:dodgerblue;
-            text-transform: capitalize;
-        }
+        h1, h2, h3, h4 {color:dodgerblue;text-transform: capitalize;}
         h1{font-size:2em;}
         h2{font-size: 1.5em;}
         h3{font-size: 1.25em;}
         h4{font-size: 1em;}
         body {font-family: "Open Sans","Calibri","sans-serif";}
         pre {background-color: lightgray; border-radius: 5px; padding: 10px;}
-        p {text-transform: capitalize;}
+        p::first-letter {text-transform: uppercase;}
+        p {text-indent: 15px;}
 
-        #a-output{
-            float: left; border: 1px solid #000000; width: 50%; height: 100%; padding: 5px;
-            overflow-y: scroll;resize: horizontal;
+        #a-output{border: 1px solid #000000; width: 50%; height: 100%; padding: 5px;overflow-y: scroll;}
+        #a-input{width: 35%; height: 100%; background-color: lightyellow;resize: none}
+        #a-toc{background-color: lightblue; width: 15%; height:100%; position:fixed; right: 0; top:0;
+            padding: 5px;font-size: x-small;}
+        #f-toolbar{height: 50px;width: 85%;text-align: right;}
+        .f-flex-container {
+            display: flex;
+            flex-wrap: wrap;        
         }
-        #a-input{
-            width: 40%; height: 100%; float: left; background-color: lightyellow;resize: horizontal;
-        }
-        #a-toc{
-            background-color: lightblue; width: 10%; height:100%; position:fixed; right: 0; top:0;
-            padding: 5px;resize:horizontal;
+
+
+        @media only screen and (min-width:501px) {
+            #a-output, #a-input, #a-toc, #f-toolbar{transition: width 0.5s;transform-origin: right;}
+            .f-expand-50 {width:50% !important;}
+            .f-expand-100 {width:100% !important;}
+            .f-toc-collapse { width: 0px !important; padding: 0 !important;}
         }
     
         @media only screen and (max-width: 500px) {
-            #a-input{float:none;width:100%; height:30%;}
-            #a-toc{float:none;position: relative; width:100%; height: 10%;overflow: scroll;font-size: smaller;}
-            #a-output{float:none;width:100%;height: 60%;}
+            #a-input{order:1; width:100%; height:30%;}
+            #a-toc{order:2; position: relative; width:100%; height: 10%;overflow: scroll;}
+            #a-output{order:3; width:100%;height: 60%;}
+            #a-output, #a-input, #a-toc, #f-toolbar{transition:height 0.5s;}
+            .f-expand-50 {height:50% !important;}
+            .f-expand-100 {height:100% !important;}
+            .f-toc-collapse { height: 0px !important; padding: 0 !important;}
+            #f-toolbar.f-expand-100 {height: 50px !important;}
+            #f-toolbar {text-align: center;}
         }  
     </style>
 </head>
 
 <body>
-    <textarea id="a-input" onchange="generateHtml()" onkeyup="generateHtml()"></textarea>    
-    <article id="a-output"></article>
-    <nav id="a-toc"></nav>
+    <div id="f-toolbar">
+        <button id="f-btn-toggle" onclick="toggleView(this)" data-toggle="off">View Source</button>       
+        <button onclick="copyHtml()" title="copy to clipboard">Copy</button>      
+        <button onclick="toggleToc()" title="toggle table of content">TOC</button>
+        <button onclick="download()">Download</button>
+    </div>
+    <div class="f-flex-container">
+        <textarea id="a-input" onchange="generateHtml()" onkeyup="generateHtml()"></textarea>    
+        <article id="a-output"></article>
+        <nav id="a-toc"></nav>
+    </div>
 
     <script>
         var inputEl = document.getElementById("a-input");
         var outputEl = document.getElementById("a-output");
         var tocEl = document.getElementById("a-toc");
+        var toolbarEl = document.getElementById("f-toolbar");
 
         var headingChar = "\\";
         var italicChar = "/";
         var boldChar = "=";
-        var codeChar = "`";
+        var codeChar = "`";            
+
+        function writeOutput(html, tochtml){
+            if(document.getElementById("f-btn-toggle").getAttribute("data-toggle") == "off") {
+                outputEl.innerHTML = html;                
+            }
+            else {
+                outputEl.innerText = html;
+            }
+            tocEl.innerHTML = tochtml;
+        }
 
         function processLine(line) {
             var co = false;
@@ -84,7 +113,6 @@
             }
             return out;
         }
-
         
         function generateHtml() {
             outputEl.innerHTML = "";
@@ -144,11 +172,9 @@
                                 break;
                         }
 
-                        out +=  "<" + tag + " id='autoid-" + autoid + "'>" + l.substring(markup) + "</" + tag + ">";
-                        var tabs = "";
-                        for(var k = 0; k < markup; ++k)
-                            tabs += "&nbsp;";
-                        outToc += tabs + "<a href='#autoid-" + autoid++ + "'>" + out + "</a>";
+                        var substr = l.substring(markup);
+                        out +=  "<" + tag + " id='autoid-" + autoid + "'>" + substr + "</" + tag + ">";                     
+                        outToc += "<a href='#autoid-" + autoid++ + "'><" + tag + ">" + substr + "</" + tag +"></a>";
                         
                     }
                     else if (c0 == '-') {
@@ -177,10 +203,76 @@
                 }
                 else { out += l + "\n";}
                 outHtml +=  out;
-                outputEl.innerHTML = outHtml;
-                tocEl.innerHTML = outToc;
+                writeOutput(outHtml, outToc);                
                 fp.ul = fc.ul;
             }
+        }
+
+        window.onbeforeunload = function(){
+            window.localStorage.setItem("fml-lastcode", inputEl.value);
+        }
+        window.onload = function(){
+            var code = window.localStorage.getItem("fml-lastcode")
+            if(code != null || code != "") {
+                inputEl.value = code;
+                generateHtml();
+            }
+        }      
+
+        function toggleView(el){
+            if(el.getAttribute("data-toggle") == "off") {
+                var html = outputEl.innerHTML;                
+                outputEl.innerHTML = "";
+                outputEl.innerText = html;
+                el.setAttribute("data-toggle", "on");
+                el.innerText = "View Html";
+            }
+            else{
+                var text = outputEl.innerText;
+                outputEl.innerText = "";
+                outputEl.innerHTML = text;
+                el.setAttribute("data-toggle", "off");
+                el.innerText = "View Source";
+            }
+        }
+
+        function toggleToc() {
+            if(tocEl.className == "") {
+                tocEl.className = "f-toc-collapse";
+                inputEl.className = "f-expand-50";
+                outputEl.className = "f-expand-50";
+                toolbarEl.className = "f-expand-100";
+            }
+            else {
+                tocEl.className = "";
+                inputEl.className = "";
+                outputEl.className = "";
+                toolbarEl.className = "";
+            }
+        }
+
+        function copyHtml(){
+            var textArea = document.createElement("textarea");
+            textArea.value = tocEl.innerHTML + "<br/>" + outputEl.innerHTML;            
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            var success = document.execCommand("copy");
+            if(success == true) alert("copied!");
+            document.body.removeChild(textArea);
+        }
+
+        function download(){
+            var text = inputEl.value;
+            var blob = new Blob([text], { type: "text/plain"});
+            var anchor = document.createElement("a");
+            anchor.download = "markup.f";
+            anchor.href = window.URL.createObjectURL(blob);
+            anchor.target ="_blank";
+            anchor.style.display = "none";
+            document.body.appendChild(anchor);
+            anchor.click();
+            document.body.removeChild(anchor);
         }
     </script>
 </body>
