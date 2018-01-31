@@ -34,4 +34,6 @@ var t = function (){
 
 \`\`
 
-
+## Version 0.0.0 - ???
+- Added ability to toggle between src/html.
+- Added ability to copy the output html to clipboard.
