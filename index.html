@@ -58,16 +58,17 @@
 </head>
 
 <body>
-    <div id="f-toolbar">
-        <button id="f-btn-toggle" onclick="toggleView(this)">View Source</button>       
+    <div id="f-toolbar" class="f-expand-100">
+        <button id="f-btn-view-source" onclick="toggleView(this)">View Source</button>
+        <button id="f-btn-read-mode" onclick="toggleMode(this)" title="preview">Reading Mode</button>
         <button onclick="copyHtml()" title="copy to clipboard">Copy</button>      
-        <button onclick="toggleToc(this)" title="toggle table of content">TOC</button>
+        <button id="f-btn-toc" onclick="toggleToc(this)" title="toggle table of content">TOC</button>
         <button onclick="download()">Download</button>
     </div>
     <div class="f-flex-container">
-        <textarea id="a-input" onchange="generateHtml()" onkeyup="generateHtml()"></textarea>    
-        <article id="a-output"></article>
-        <nav id="a-toc"></nav>
+        <textarea id="a-input" onchange="generateHtml()" onkeyup="generateHtml()" class="f-expand-50"></textarea>    
+        <article id="a-output" class="f-expand-50"></article>
+        <nav id="a-toc" class="f-toc-collapse"></nav>
     </div>
     <footer id="f-footer"></footer>
 
@@ -83,7 +84,7 @@
         var codeChar = "`";            
 
         function writeOutput(html, tochtml){
-            if(document.getElementById("f-btn-toggle").className == "") {
+            if(document.getElementById("f-btn-view-source").className == "") {
                 outputEl.innerHTML = html;                
             }
             else {
@@ -244,16 +245,28 @@
             }
         }
 
+        function toggleMode(el){
+            inputEl.classList.remove("f-toc-collapse");            
+            toolbarEl.classList.remove("f-expand-100");            
+            el.classList.toggle("f-btn-on");
+            if(el.classList.contains("f-btn-on")){
+                inputEl.classList.add("f-toc-collapse");
+                tocEl.classList.add("f-toc-collapse");            
+                toolbarEl.classList.add("f-expand-100");             
+                document.getElementById("f-btn-toc").classList.remove("f-btn-on");
+            }                                                
+        }
+
         function toggleToc(el) {
             if(tocEl.className == "") {                
-                el.className = "f-btn-on";
+                el.className = "";
                 tocEl.className = "f-toc-collapse";
                 inputEl.className = "f-expand-50";
                 outputEl.className = "f-expand-50";
                 toolbarEl.className = "f-expand-100";
             }
             else {
-                el.className = "";
+                el.className = "f-btn-on";               
                 tocEl.className = "";
                 inputEl.className = "";
                 outputEl.className = "";
