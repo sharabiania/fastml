@@ -6,29 +6,35 @@
 
     <style>
         *{box-sizing: border-box;}
+        *:focus {outline: 0;}
+        ::-webkit-scrollbar{width:8px;cursor: -webkit-grab;}     
+        ::-webkit-scrollbar-track:hover{background: #eeeeee;cursor: pointer;}
+        ::-webkit-scrollbar-thumb {border-radius: 10px;background: #cccccc;}
         h1, h2, h3, h4 {color:dodgerblue;text-transform: capitalize;}
         h1{font-size:2em;}
         h2{font-size: 1.5em;}
         h3{font-size: 1.25em;}
         h4{font-size: 1em;}
-        body {font-family: "Open Sans","Calibri","sans-serif";}
+        body {font-family: "Open Sans","Calibri","sans-serif";background-color: aliceblue;margin: 0;}
+        code {background-color: #eff0f1; padding: 1px 5px; font-family: Consolas, monospace; font-size: 14px;}
+        button {background-color: whitesmoke; cursor: pointer; margin:5px;padding: 5px;border-style: double; border-color:#cccccc;}        
+        button:hover{border-color:#aaaaaa;}
+        button.f-btn-on {background-color:#cccccc;}
         pre {background-color: lightgray; border-radius: 5px; padding: 10px;}
         p::first-letter {text-transform: uppercase;}
         p {text-indent: 15px;}
 
-        #a-output{border: 1px solid #000000; width: 50%; height: 100%; padding: 5px;overflow-y: scroll;}
-        #a-input{width: 35%; height: 100%; background-color: lightyellow;resize: none}
-        #a-toc{background-color: lightblue; width: 15%; height:100%; position:fixed; right: 0; top:0;
-            padding: 5px;font-size: x-small;}
-        #f-toolbar{height: 50px;width: 85%;text-align: right;}
-        .f-flex-container {
-            display: flex;
-            flex-wrap: wrap;        
-        }
+        #a-output{border: 1px solid #cccccc; width: 50%; height: 100%; padding: 5px;overflow-y: scroll; padding:10px;background-color: white;}
+        #a-input{width: 35%; height: 100%; background-color: lightyellow;resize: none; border-color:#cccccc;padding:10px;}
+        #a-toc{background-color: aliceblue; width: 15%; height:100%; position:fixed; right: 0; top:0;padding: 10px;font-size: x-small;}
+       
+        .f-flex-container {display: flex;flex-wrap: wrap;height: 90%;}
 
 
         @media only screen and (min-width:501px) {
+            #f-toolbar{width: 85%;text-align: right;}
             #a-output, #a-input, #a-toc, #f-toolbar{transition: width 0.5s;transform-origin: right;}
+            #f-footer {height: 5%px;}
             .f-expand-50 {width:50% !important;}
             .f-expand-100 {width:100% !important;}
             .f-toc-collapse { width: 0px !important; padding: 0 !important;}
@@ -38,28 +44,32 @@
             #a-input{order:1; width:100%; height:30%;}
             #a-toc{order:2; position: relative; width:100%; height: 10%;overflow: scroll;}
             #a-output{order:3; width:100%;height: 60%;}
+            #f-toolbar {text-align: center;}
             #a-output, #a-input, #a-toc, #f-toolbar{transition:height 0.5s;}
             .f-expand-50 {height:50% !important;}
             .f-expand-100 {height:100% !important;}
             .f-toc-collapse { height: 0px !important; padding: 0 !important;}
-            #f-toolbar.f-expand-100 {height: 50px !important;}
-            #f-toolbar {text-align: center;}
+            
+            #f-toolbar.f-expand-100 {height: auto !important;}
+          
         }  
     </style>
 </head>
 
 <body>
-    <div id="f-toolbar">
-        <button id="f-btn-toggle" onclick="toggleView(this)" data-toggle="off">View Source</button>       
+    <div id="f-toolbar" class="f-expand-100">
+        <button id="f-btn-view-source" onclick="toggleView(this)">View Source</button>
+        <button id="f-btn-read-mode" onclick="toggleMode(this)" title="preview">Reading Mode</button>
         <button onclick="copyHtml()" title="copy to clipboard">Copy</button>      
-        <button onclick="toggleToc()" title="toggle table of content">TOC</button>
+        <button id="f-btn-toc" onclick="toggleToc(this)" title="toggle table of content">TOC</button>
         <button onclick="download()">Download</button>
     </div>
     <div class="f-flex-container">
-        <textarea id="a-input" onchange="generateHtml()" onkeyup="generateHtml()"></textarea>    
-        <article id="a-output"></article>
-        <nav id="a-toc"></nav>
+        <textarea id="a-input" onchange="generateHtml()" onkeyup="generateHtml()" class="f-expand-50" autofocus="autofocus"></textarea>    
+        <article id="a-output" class="f-expand-50"></article>
+        <nav id="a-toc" class="f-toc-collapse"></nav>
     </div>
+    <footer id="f-footer"></footer>
 
     <script>
         var inputEl = document.getElementById("a-input");
@@ -73,7 +83,7 @@
         var codeChar = "`";            
 
         function writeOutput(html, tochtml){
-            if(document.getElementById("f-btn-toggle").getAttribute("data-toggle") == "off") {
+            if(document.getElementById("f-btn-view-source").className == "") {
                 outputEl.innerHTML = html;                
             }
             else {
@@ -86,21 +96,30 @@
             var co = false;
             var bo = false;
             var io = false;
+            var prev_char = '';
             var out = "";
             for (var i = 0; i < line.length; ++i) {
                 var c = line.charAt(i);
                 switch (c) {
                     case italicChar:
-                        if (io == false) out += '<i>';
-                        else out += "</i>"
-                        io = !io;
+                        if(co) {out += c;}
+                        else if(line.charAt(i+1) == italicChar) {
+                            out += c;
+                            ++i;
+                        }
+                        else{                            
+                            if (io == false) out += '<i>';
+                            else out += "</i>"
+                            io = !io;                            
+                        }
                         break;
                     case boldChar:
-                        if (bo == false) out += '<b>';
+                        if(co) {out += c;}
+                        else if (bo == false) out += '<b>';
                         else out += "</b>";
                         bo = !bo;
                         break;
-                    case codeChar:
+                    case codeChar:                    
                         if (co == false) out += '<code>';
                         else out += '</code>';
                         co = !co;
@@ -110,6 +129,7 @@
                         out += c;
                         break;
                 }
+                prev_char = c;
             }
             return out;
         }
@@ -220,30 +240,42 @@
         }      
 
         function toggleView(el){
-            if(el.getAttribute("data-toggle") == "off") {
+            if(el.className == "") {
                 var html = outputEl.innerHTML;                
                 outputEl.innerHTML = "";
                 outputEl.innerText = html;
-                el.setAttribute("data-toggle", "on");
-                el.innerText = "View Html";
+                el.className = "f-btn-on";               
             }
             else{
                 var text = outputEl.innerText;
                 outputEl.innerText = "";
                 outputEl.innerHTML = text;
-                el.setAttribute("data-toggle", "off");
-                el.innerText = "View Source";
+                el.className = "";               
             }
         }
 
-        function toggleToc() {
-            if(tocEl.className == "") {
+        function toggleMode(el){
+            inputEl.classList.remove("f-toc-collapse");            
+            toolbarEl.classList.remove("f-expand-100");            
+            el.classList.toggle("f-btn-on");
+            if(el.classList.contains("f-btn-on")){
+                inputEl.classList.add("f-toc-collapse");
+                tocEl.classList.add("f-toc-collapse");            
+                toolbarEl.classList.add("f-expand-100");             
+                document.getElementById("f-btn-toc").classList.remove("f-btn-on");
+            }                                                
+        }
+
+        function toggleToc(el) {
+            if(tocEl.className == "") {                
+                el.className = "";
                 tocEl.className = "f-toc-collapse";
                 inputEl.className = "f-expand-50";
                 outputEl.className = "f-expand-50";
                 toolbarEl.className = "f-expand-100";
             }
             else {
+                el.className = "f-btn-on";               
                 tocEl.className = "";
                 inputEl.className = "";
                 outputEl.className = "";
