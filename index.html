@@ -27,7 +27,8 @@
         #a-output{border: 1px solid #cccccc; width: 50%; height: 100%; padding: 5px;overflow-y: scroll; padding:10px;background-color: white;}
         #a-input{width: 35%; height: 100%; background-color: lightyellow;resize: none; border-color:#cccccc;padding:10px;}
         #a-toc{background-color: aliceblue; width: 15%; height:100%; position:fixed; right: 0; top:0;padding: 10px;font-size: x-small;}
-       
+        #f-toolbar-container {display:flex; flex-wrap:wrap;width:85%; padding: 5px;}
+        #f-title {align-self: center; font-weight: bold; color: darkslategray; font-size:30px;}
         .f-flex-container {display: flex;flex-wrap: wrap;height: 90%;}
 
 
@@ -46,8 +47,7 @@
             #a-output{order:3; width:100%;height: 60%;}
             #f-toolbar {text-align: center;}
             #a-output, #a-input, #a-toc, #f-toolbar{transition:height 0.5s;}
-            .f-expand-50 {height:50% !important;}
-            .f-expand-100 {height:100% !important;}
+         
             .f-toc-collapse { height: 0px !important; padding: 0 !important;}
             
             #f-toolbar.f-expand-100 {height: auto !important;}
@@ -57,12 +57,16 @@
 </head>
 
 <body>
-    <div id="f-toolbar" class="f-expand-100">
-        <button id="f-btn-view-source" onclick="toggleView(this)">View Source</button>
-        <button id="f-btn-read-mode" onclick="toggleMode(this)" title="preview">Reading Mode</button>
-        <button onclick="copyHtml()" title="copy to clipboard">Copy</button>      
-        <button id="f-btn-toc" onclick="toggleToc(this)" title="toggle table of content">TOC</button>
-        <button onclick="download()">Download</button>
+    <div id="f-toolbar-container" class="f-expand-100">
+        <div id="f-title" class="f-expand-50">           
+        </div>
+        <div id="f-toolbar" class="f-expand-50">
+            <button id="f-btn-view-source" onclick="toggleView(this)">View Source</button>
+            <button id="f-btn-read-mode" onclick="toggleMode(this)" title="preview">Reading Mode</button>
+            <button onclick="copyHtml()" title="copy to clipboard">Copy</button>      
+            <button id="f-btn-toc" onclick="toggleToc(this)" title="toggle table of content">TOC</button>
+            <button onclick="download()">Download</button>
+        </div>
     </div>
     <div class="f-flex-container">
         <textarea id="a-input" onchange="generateHtml()" onkeyup="generateHtml()" class="f-expand-50" autofocus="autofocus"></textarea>    
@@ -145,10 +149,12 @@
             var outToc = "";
             var outHtml = "";
             var autoid = 0;
-            var lines = inputEl.value.split('\n');
+            
+            var lines = inputEl.value.trim().split('\n');
             var pre = false;
 
-            for (var i = 0; i < lines.length; ++i) {
+            document.getElementById("f-title").innerText = lines[0];
+            for (var i = 1; i < lines.length; ++i) {
                 var l = lines[i];
                 var c0 = l.charAt(0);
                 var c1 = l.charAt(1);
@@ -266,21 +272,12 @@
             }                                                
         }
 
-        function toggleToc(el) {
-            if(tocEl.className == "") {                
-                el.className = "";
-                tocEl.className = "f-toc-collapse";
-                inputEl.className = "f-expand-50";
-                outputEl.className = "f-expand-50";
-                toolbarEl.className = "f-expand-100";
-            }
-            else {
-                el.className = "f-btn-on";               
-                tocEl.className = "";
-                inputEl.className = "";
-                outputEl.className = "";
-                toolbarEl.className = "";
-            }
+        function toggleToc(el) {            
+                el.classList.toggle("f-btn-on");
+                tocEl.classList.toggle("f-toc-collapse");                
+                document.getElementById("f-toolbar-container").classList.toggle("f-expand-100");   
+                inputEl.classList.toggle("f-expand-50");
+                outputEl.classList.toggle("f-expand-50");
         }
 
         function copyHtml(){
@@ -298,7 +295,12 @@
             var text = inputEl.value;
             var blob = new Blob([text], { type: "text/plain"});
             var anchor = document.createElement("a");
-            anchor.download = "markup.f";
+            var filename = "markup.txt";
+            if(document.getElementById("f-title").innerText.trim().length != 0) {
+                filename = document.getElementById("f-title").innerText
+                .trim().replace(/[^a-z0-9]/gi, '_').toLowerCase();
+            }
+            anchor.download = filename;
             anchor.href = window.URL.createObjectURL(blob);
             anchor.target ="_blank";
             anchor.style.display = "none";
