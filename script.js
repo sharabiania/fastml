@@ -238,11 +238,37 @@ function openFile() {
 
 function loadFile(e){    
     var el = document.getElementById("f-file-input");
-    reader = new FileReader();         
+    var reader = new FileReader();         
     reader.onload = function(e) {
         inputEl.value = e.target.result;
         generateHtml();
     }
-    var t = reader.readAsText(el.files[0]);
+    reader.readAsText(el.files[0]);
     
+}
+
+function dragenter() {
+    document.getElementById("a-input").style.backgroundColor = "gray";
+}
+
+function dragleave() {
+    document.getElementById("a-input").style.backgroundColor = "lightyellow";
+}
+
+function drop(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    document.getElementById("a-input").style.backgroundColor = "lightyellow";
+    var extention = e.dataTransfer.files[0].name.split('.').pop().toLowerCase();
+    if(extention != "txt" && extention != "f")
+    {
+        alert("Only .txt or .f");
+        return;
+    }    
+    var reader = new FileReader();
+    reader.onload = function(e){
+        inputEl.value = e.target.result;
+        generateHtml();
+    }
+    reader.readAsText(e.dataTransfer.files[0]);
 }

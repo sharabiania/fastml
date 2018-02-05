@@ -20,7 +20,9 @@
         </div>
     </div>
     <div class="f-flex-container">
-        <textarea id="a-input" onchange="generateHtml()" onkeyup="generateHtml()" class="f-expand-50" autofocus="autofocus"></textarea>    
+        <textarea id="a-input" 
+        ondragenter="dragenter(event)" ondragleave="dragleave(event)" ondrop="drop(event)"
+        onchange="generateHtml()" onkeyup="generateHtml()" class="f-expand-50" autofocus="autofocus"></textarea>    
         <article id="a-output" class="f-expand-50"></article>
         <nav id="a-toc" class="f-toc-collapse"></nav>
     </div>
