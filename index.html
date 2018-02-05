@@ -6,15 +6,17 @@
 </head>
 
 <body>
+    <input id="f-file-input" type="file"  hidden="hidden" onchange="loadFile()" accept=".txt, .f"/>
     <div id="f-toolbar-container" class="f-expand-100">
         <div id="f-title" class="f-expand-50">           
         </div>
         <div id="f-toolbar" class="f-expand-50">
+            <button onclick="openFile()">Open</button>
             <button id="f-btn-view-source" onclick="toggleView(this)">View Source</button>
             <button id="f-btn-read-mode" onclick="toggleMode(this)" title="preview">Reading Mode</button>
             <button onclick="copyHtml()" title="copy to clipboard">Copy</button>      
             <button id="f-btn-toc" onclick="toggleToc(this)" title="toggle table of content">TOC</button>
-            <button onclick="download()">Download</button>
+            <button onclick="download()">Download</button>            
         </div>
     </div>
     <div class="f-flex-container">

@@ -230,3 +230,19 @@ function download() {
     anchor.click();
     document.body.removeChild(anchor);
 }
+
+function openFile() {
+    var el = document.getElementById("f-file-input");
+    el.click();
+}
+
+function loadFile(e){    
+    var el = document.getElementById("f-file-input");
+    reader = new FileReader();         
+    reader.onload = function(e) {
+        inputEl.value = e.target.result;
+        generateHtml();
+    }
+    var t = reader.readAsText(el.files[0]);
+    
+}
