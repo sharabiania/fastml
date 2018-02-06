@@ -1,5 +1,6 @@
 *{box-sizing: border-box;}
 *:focus {outline: 0;}
+::selection{background-color: darkslategray;color:aliceblue;}
 ::-webkit-scrollbar{width:8px;cursor: -webkit-grab;}     
 ::-webkit-scrollbar-track:hover{background: #eeeeee;cursor: pointer;}
 ::-webkit-scrollbar-thumb {border-radius: 10px;background: #cccccc;}
@@ -25,7 +26,6 @@ p {text-indent: 15px;}
 .f-flex-container {display: flex;flex-wrap: wrap;height: 90%;}
 .f-hidden {display: none;}
 
-
 @media only screen and (min-width:501px) {
     #f-toolbar{width: 85%;text-align: right;}
     #a-output, #a-input, #a-toc, #f-toolbar-container{transition: width 0.1s;transform-origin: right;}
@@ -34,7 +34,6 @@ p {text-indent: 15px;}
     .f-expand-100 {width:100% !important;}
     .f-toc-collapse { width: 0px !important; padding: 0 !important;}
     .f-center {margin:auto; width:50% !important;}
-
 }
 
 @media only screen and (max-width: 500px) {
@@ -42,10 +41,7 @@ p {text-indent: 15px;}
     #a-toc{order:2; position: relative; width:100%; height: 10%;overflow: scroll;}
     #a-output{order:3; width:100%;height: 60%;}
     #f-toolbar {text-align: center;}
-    #a-output, #a-input, #a-toc, #f-toolbar{transition:height 0.5s;}
- 
-    .f-toc-collapse { height: 0px !important; padding: 0 !important;}
-    
-    #f-toolbar.f-expand-100 {height: auto !important;}
-  
+    #a-output, #a-input, #a-toc, #f-toolbar{transition:height 0.5s;} 
+    .f-toc-collapse { height: 0px !important; padding: 0 !important;}    
+    #f-toolbar.f-expand-100 {height: auto !important;}  
 }  
