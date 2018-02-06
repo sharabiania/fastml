@@ -183,15 +183,13 @@ function toggleView(el) {
 }
 
 function toggleMode(el) {
-    inputEl.classList.remove("f-toc-collapse");
-    toolbarEl.classList.remove("f-expand-100");
+  
     el.classList.toggle("f-btn-on");
-    if (el.classList.contains("f-btn-on")) {
-        inputEl.classList.add("f-toc-collapse");
-        tocEl.classList.add("f-toc-collapse");
-        toolbarEl.classList.add("f-expand-100");
-        document.getElementById("f-btn-toc").classList.remove("f-btn-on");
-    }
+    inputEl.classList.toggle("f-hidden");
+    outputEl.classList.toggle("f-center");
+    document.getElementById("f-toolbar-container").classList.toggle("f-center");
+    document.getElementById("f-btn-view-source").classList.toggle("f-hidden");
+    document.getElementById("f-btn-save").classList.toggle("f-hidden");
 }
 
 function toggleToc(el) {
