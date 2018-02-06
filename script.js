@@ -88,10 +88,10 @@ function generateHtml() {
         if (c0 == codeChar && c1 == codeChar) {
 
             if (pre == false) {
-                out += "<pre><code>" + l.substring(2);
+                out += "<pre>" + l.substring(2);
             }
             else {
-                out += "</code></pre>";
+                out += "</pre>";
             }
             pre = !pre;
         }
@@ -209,7 +209,7 @@ function copyHtml() {
     textArea.focus();
     textArea.select();
     var success = document.execCommand("copy");
-    if (success == true) alert("copied!");
+    if (success == true) aalert("copied!");
     document.body.removeChild(textArea);
 }
 
@@ -262,7 +262,7 @@ function drop(e) {
     var extention = e.dataTransfer.files[0].name.split('.').pop().toLowerCase();
     if(extention != "txt" && extention != "f")
     {
-        alert("Only .txt or .f");
+        aalert("Only .txt or .f");
         return;
     }    
     var reader = new FileReader();
